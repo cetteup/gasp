@@ -1,7 +1,8 @@
-package sqlhelpers
+package sqlutil
 
 import (
 	"database/sql"
+	"strings"
 	"time"
 
 	"github.com/go-sql-driver/mysql"
@@ -27,8 +28,16 @@ func Connect(host, dbname, user, passwd string) *sql.DB {
 	}
 
 	db.SetConnMaxLifetime(time.Minute * 3)
-	db.SetMaxOpenConns(1)
-	db.SetMaxIdleConns(1)
+	db.SetMaxOpenConns(10)
+	db.SetMaxIdleConns(10)
 
 	return db
+}
+
+func EscapeWildcards(s string) string {
+	r := strings.NewReplacer(
+		"%", "\\%",
+		"_", "\\_",
+	)
+	return r.Replace(s)
 }

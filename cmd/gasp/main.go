@@ -11,10 +11,11 @@ import (
 	"github.com/rs/zerolog/log"
 
 	"github.com/cetteup/gasp/cmd/gasp/internal/config"
+	"github.com/cetteup/gasp/cmd/gasp/internal/handler/searchforplayers"
 	"github.com/cetteup/gasp/cmd/gasp/internal/handler/verifyplayer"
 	"github.com/cetteup/gasp/cmd/gasp/internal/options"
 	playersql "github.com/cetteup/gasp/internal/domain/player/sql"
-	"github.com/cetteup/gasp/internal/sqlhelpers"
+	"github.com/cetteup/gasp/internal/sqlutil"
 )
 
 var (
@@ -52,7 +53,7 @@ func main() {
 			Msg("Failed to read config file")
 	}
 
-	db := sqlhelpers.Connect(
+	db := sqlutil.Connect(
 		cfg.Database.Host,
 		cfg.Database.DatabaseName,
 		cfg.Database.Username,
@@ -68,6 +69,7 @@ func main() {
 	}()
 
 	playerRepository := playersql.NewRepository(db)
+	sfph := searchforplayers.NewHandler(playerRepository)
 	vph := verifyplayer.NewHandler(playerRepository)
 
 	e := echo.New()
@@ -101,6 +103,7 @@ func main() {
 	}))
 
 	asp := e.Group("/ASP")
+	asp.GET("/searchforplayers.aspx", sfph.HandleGET)
 	asp.GET("/VerifyPlayer.aspx", vph.HandleGET)
 
 	e.Logger.Fatal(e.Start(opts.ListenAddr))
