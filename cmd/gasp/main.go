@@ -11,7 +11,7 @@ import (
 	"github.com/rs/zerolog/log"
 
 	"github.com/cetteup/gasp/cmd/gasp/internal/config"
-	"github.com/cetteup/gasp/cmd/gasp/internal/handler"
+	"github.com/cetteup/gasp/cmd/gasp/internal/handler/verifyplayer"
 	"github.com/cetteup/gasp/cmd/gasp/internal/options"
 	playersql "github.com/cetteup/gasp/internal/domain/player/sql"
 	"github.com/cetteup/gasp/internal/sqlhelpers"
@@ -68,7 +68,7 @@ func main() {
 	}()
 
 	playerRepository := playersql.NewRepository(db)
-	h := handler.NewHandler(playerRepository)
+	vph := verifyplayer.NewHandler(playerRepository)
 
 	e := echo.New()
 	e.HideBanner = true
@@ -101,7 +101,7 @@ func main() {
 	}))
 
 	asp := e.Group("/ASP")
-	asp.GET("/VerifyPlayer.aspx", h.HandleGetVerifyPlayer)
+	asp.GET("/VerifyPlayer.aspx", vph.HandleGET)
 
 	e.Logger.Fatal(e.Start(opts.ListenAddr))
 }
