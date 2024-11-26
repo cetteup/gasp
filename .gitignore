@@ -23,3 +23,9 @@ go.work.sum
 
 # env file
 .env
+
+# Config files
+config.yaml
+
+# Built binaries
+cmd/gasp/gasp

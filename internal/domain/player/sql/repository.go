@@ -1,0 +1,171 @@
+package sql
+
+import (
+	"context"
+	"database/sql"
+	"errors"
+
+	sq "github.com/Masterminds/squirrel"
+
+	"github.com/cetteup/gasp/internal/domain/player"
+)
+
+const (
+	playerStatsTable = "player"
+
+	columnID                = "id"
+	columnName              = "name"
+	columnJoined            = "joined"
+	columnTime              = "time"
+	columnRounds            = "rounds"
+	columnRankID            = "rank_id"
+	columnScore             = "score"
+	columnCommandScore      = "cmdscore"
+	columnCombatScore       = "skillscore"
+	columnTeamScore         = "teamscore"
+	columnKills             = "kills"
+	columnDeaths            = "deaths"
+	columnCaptures          = "captures"
+	columnNeutralizes       = "neutralizes"
+	columnCaptureAssists    = "captureassists"
+	columnNeutralizeAssists = "neutralizeassists"
+	columnDefends           = "defends"
+	columnHeals             = "heals"
+	columnRevives           = "revives"
+	columnResupplies        = "resupplies"
+	columnRepairs           = "repairs"
+	columnDamageAssists     = "damageassists"
+	columnTargetAssists     = "targetassists"
+	columnDriverSpecials    = "driverspecials"
+	columnTeamKills         = "teamkills"
+	columnTeamDamage        = "teamdamage"
+	columnTeamVehicleDamage = "teamvehicledamage"
+	columnSuicides          = "suicides"
+	columnKillStreak        = "killstreak"
+	columnDeathStreak       = "deathstreak"
+	columnCommandTime       = "cmdtime"
+	columnSquadLeaderTime   = "sqltime"
+	columnSquadMemberTime   = "sqmtime"
+	columnLoneWolfTime      = "lwtime"
+	columnTimeParachute     = "timepara"
+	columnWins              = "wins"
+	columnLosses            = "losses"
+	columnBestScore         = "bestscore"
+	columnMode0             = "mode0"
+	columnMode1             = "mode1"
+	columnMode2             = "mode2"
+	columnPermanentlyBanned = "permban"
+)
+
+type Repository struct {
+	runner sq.BaseRunner
+}
+
+func NewRepository(runner sq.BaseRunner) *Repository {
+	return &Repository{
+		runner: runner,
+	}
+}
+
+func (r *Repository) FindByID(ctx context.Context, playerID uint32) (player.Player, error) {
+	query := sq.
+		Select(
+			columnID,
+			columnName,
+			columnJoined,
+			columnTime,
+			columnRounds,
+			columnRankID,
+			columnScore,
+			columnCommandScore,
+			columnCombatScore,
+			columnTeamScore,
+			columnKills,
+			columnDeaths,
+			columnCaptures,
+			columnNeutralizes,
+			columnCaptureAssists,
+			columnNeutralizeAssists,
+			columnDefends,
+			columnHeals,
+			columnRevives,
+			columnResupplies,
+			columnRepairs,
+			columnDamageAssists,
+			columnTargetAssists,
+			columnDriverSpecials,
+			columnTeamKills,
+			columnTeamDamage,
+			columnTeamVehicleDamage,
+			columnSuicides,
+			columnKillStreak,
+			columnDeathStreak,
+			columnCommandTime,
+			columnSquadLeaderTime,
+			columnSquadMemberTime,
+			columnLoneWolfTime,
+			columnTimeParachute,
+			columnWins,
+			columnLosses,
+			columnBestScore,
+			columnMode0,
+			columnMode1,
+			columnMode2,
+			columnPermanentlyBanned,
+		).
+		From(playerStatsTable).
+		Where(sq.Eq{columnID: playerID})
+
+	var p player.Player
+	if err := query.RunWith(r.runner).QueryRowContext(ctx).Scan(
+		&p.ID,
+		&p.Name,
+		&p.Joined,
+		&p.Time,
+		&p.Rounds,
+		&p.RankID,
+		&p.Score,
+		&p.CommandScore,
+		&p.CombatScore,
+		&p.TeamScore,
+		&p.Kills,
+		&p.Deaths,
+		&p.Captures,
+		&p.Neutralizes,
+		&p.CaptureAssists,
+		&p.NeutralizeAssists,
+		&p.Defends,
+		&p.Heals,
+		&p.Revives,
+		&p.Resupplies,
+		&p.Repairs,
+		&p.DamageAssists,
+		&p.TargetAssists,
+		&p.DriverSpecials,
+		&p.TeamKills,
+		&p.TeamDamage,
+		&p.TeamVehicleDamage,
+		&p.Suicides,
+		&p.KillStreak,
+		&p.DeathStreak,
+		&p.CommandTime,
+		&p.SquadLeaderTime,
+		&p.SquadMemberTime,
+		&p.LoneWolfTime,
+		&p.TimeParachute,
+		&p.Wins,
+		&p.Losses,
+		&p.BestScore,
+		&p.Mode0,
+		&p.Mode1,
+		&p.Mode2,
+		&p.PermanentlyBanned,
+	); err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return player.Player{}, player.ErrPlayerNotFound
+		}
+		return player.Player{}, err
+	}
+
+	return p, nil
+}

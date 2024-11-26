@@ -1,0 +1,46 @@
+package player
+
+type Player struct {
+	ID                uint32
+	Name              string
+	Joined            uint32
+	Time              uint32
+	Rounds            uint16
+	RankID            uint8
+	Score             int64
+	CommandScore      int64
+	CombatScore       int64
+	TeamScore         int64
+	Kills             uint64
+	Deaths            uint64
+	Captures          uint64
+	Neutralizes       uint64
+	CaptureAssists    uint64
+	NeutralizeAssists uint64
+	Defends           uint64
+	Heals             uint32
+	Revives           uint32
+	Resupplies        uint32
+	Repairs           uint32
+	DamageAssists     uint32
+	TargetAssists     uint32
+	DriverSpecials    uint32
+	TeamKills         uint32
+	TeamDamage        uint32
+	TeamVehicleDamage uint32
+	Suicides          uint16
+	KillStreak        uint16
+	DeathStreak       uint16
+	CommandTime       int32
+	SquadLeaderTime   int32
+	SquadMemberTime   int32
+	LoneWolfTime      int32
+	TimeParachute     int32
+	Wins              uint16
+	Losses            uint16
+	BestScore         uint16
+	Mode0             uint16
+	Mode1             uint16
+	Mode2             uint16
+	PermanentlyBanned bool
+}
