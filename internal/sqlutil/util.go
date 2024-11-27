@@ -41,3 +41,7 @@ func EscapeWildcards(s string) string {
 	)
 	return r.Replace(s)
 }
+
+func QualifyColumn(table, column string) string {
+	return table + "." + column
+}
