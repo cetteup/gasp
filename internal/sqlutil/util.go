@@ -42,6 +42,10 @@ func EscapeWildcards(s string) string {
 	return r.Replace(s)
 }
 
+func Quote(s string) string {
+	return "`" + s + "`"
+}
+
 func QualifyColumn(table, column string) string {
 	return table + "." + column
 }
