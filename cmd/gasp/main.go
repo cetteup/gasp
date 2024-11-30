@@ -149,7 +149,7 @@ func main() {
 
 	g := e.Group("/ASP")
 	g.GET("/getawardsinfo.aspx", gaih.HandleGET)
-	g.GET("/getbackeninfo.aspx", gbih.HandleGET)
+	g.GET("/getbackendinfo.aspx", gbih.HandleGET)
 	g.GET("/getunlocksinfo.aspx", guih.HandleGET)
 	g.GET("/searchforplayers.aspx", sfph.HandleGET)
 	g.GET("/VerifyPlayer.aspx", vph.HandleGET)
