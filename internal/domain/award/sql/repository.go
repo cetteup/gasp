@@ -70,26 +70,26 @@ func (r *RecordRepository) FindByPlayerID(ctx context.Context, playerID uint32) 
 		return nil, err
 	}
 
-	as := make([]award.Record, 0)
+	records := make([]award.Record, 0)
 	for rows.Next() {
-		var a award.Record
+		var record award.Record
 		if err = rows.Scan(
-			&a.Player.ID,
-			&a.Award.ID,
-			&a.Award.Type,
-			&a.Round.ID,
-			&a.Round.End,
-			&a.Level,
+			&record.Player.ID,
+			&record.Award.ID,
+			&record.Award.Type,
+			&record.Round.ID,
+			&record.Round.End,
+			&record.Level,
 		); err != nil {
 			return nil, err
 		}
 
-		as = append(as, a)
+		records = append(records, record)
 	}
 
 	if err = rows.Err(); err != nil {
 		return nil, err
 	}
 
-	return as, nil
+	return records, nil
 }
