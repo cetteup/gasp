@@ -13,6 +13,7 @@ import (
 	"github.com/cetteup/gasp/cmd/gasp/internal/config"
 	"github.com/cetteup/gasp/cmd/gasp/internal/handler/getawardsinfo"
 	"github.com/cetteup/gasp/cmd/gasp/internal/handler/getbackendinfo"
+	"github.com/cetteup/gasp/cmd/gasp/internal/handler/getunlocksinfo"
 	"github.com/cetteup/gasp/cmd/gasp/internal/handler/searchforplayers"
 	"github.com/cetteup/gasp/cmd/gasp/internal/handler/verifyplayer"
 	"github.com/cetteup/gasp/cmd/gasp/internal/options"
@@ -75,8 +76,10 @@ func main() {
 	playerRepository := playersql.NewRepository(db)
 	awardRecordRepository := awardsql.NewRecordRepository(db)
 	unlockRepository := unlocksql.NewRepository(db)
+	unlockRecordRepository := unlocksql.NewRecordRepository(db)
 	gaih := getawardsinfo.NewHandler(awardRecordRepository)
 	gbih := getbackendinfo.NewHandler(unlockRepository)
+	guih := getunlocksinfo.NewHandler(playerRepository, awardRecordRepository, unlockRecordRepository)
 	sfph := searchforplayers.NewHandler(playerRepository)
 	vph := verifyplayer.NewHandler(playerRepository)
 
@@ -113,6 +116,7 @@ func main() {
 	asp := e.Group("/ASP")
 	asp.GET("/getawardsinfo.aspx", gaih.HandleGET)
 	asp.GET("/getbackeninfo.aspx", gbih.HandleGET)
+	asp.GET("/getunlocksinfo.aspx", guih.HandleGET)
 	asp.GET("/searchforplayers.aspx", sfph.HandleGET)
 	asp.GET("/VerifyPlayer.aspx", vph.HandleGET)
 

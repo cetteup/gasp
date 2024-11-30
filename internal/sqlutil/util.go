@@ -47,5 +47,5 @@ func Quote(s string) string {
 }
 
 func QualifyColumn(table, column string) string {
-	return table + "." + column
+	return Quote(table) + "." + Quote(column)
 }
