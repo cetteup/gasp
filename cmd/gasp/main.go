@@ -154,5 +154,10 @@ func main() {
 	g.GET("/searchforplayers.aspx", sfph.HandleGET)
 	g.GET("/VerifyPlayer.aspx", vph.HandleGET)
 
-	e.Logger.Fatal(e.Start(opts.ListenAddr))
+	if err = e.Start(opts.ListenAddr); !errors.Is(err, http.ErrServerClosed) {
+		log.Fatal().
+			Err(err).
+			Str("address", opts.ListenAddr).
+			Msg("Failed to start server")
+	}
 }
