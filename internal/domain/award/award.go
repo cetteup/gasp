@@ -1,7 +1,6 @@
 package award
 
 import (
-	"github.com/cetteup/gasp/internal/domain/player"
 	"github.com/cetteup/gasp/internal/domain/round"
 )
 
@@ -20,8 +19,12 @@ type Award struct {
 }
 
 type Record struct {
-	Player player.Player // Only ID is loaded from db (reference)
+	Player PlayerRef
 	Award  Award
 	Round  round.Round
 	Level  uint64
+}
+
+type PlayerRef struct {
+	ID uint32
 }
