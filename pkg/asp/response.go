@@ -66,10 +66,14 @@ func (r *Response) Serialize() string {
 	return serialized
 }
 
-func NewSyntaxErrorResponse() *Response {
-	return NewErrorResponse(107).
+func NewErrorResponseWithMessage(code int, message string) *Response {
+	return NewErrorResponse(code).
 		WriteHeader("asof", "err").
-		WriteData(Timestamp(), "Invalid Syntax!")
+		WriteData(Timestamp(), message)
+}
+
+func NewSyntaxErrorResponse() *Response {
+	return NewErrorResponseWithMessage(107, "Invalid Syntax!")
 }
 
 func Timestamp() string {

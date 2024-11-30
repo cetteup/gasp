@@ -1,7 +1,9 @@
 package main
 
 import (
+	"errors"
 	"fmt"
+	"net/http"
 	"os"
 	"time"
 
@@ -21,6 +23,7 @@ import (
 	playersql "github.com/cetteup/gasp/internal/domain/player/sql"
 	unlocksql "github.com/cetteup/gasp/internal/domain/unlock/sql"
 	"github.com/cetteup/gasp/internal/sqlutil"
+	"github.com/cetteup/gasp/pkg/asp"
 )
 
 var (
@@ -86,9 +89,40 @@ func main() {
 	e := echo.New()
 	e.HideBanner = true
 	e.HidePort = true
+	// Error handler is strongly modeled after the default one
+	e.HTTPErrorHandler = func(err error, c echo.Context) {
+		if c.Response().Committed {
+			return
+		}
+
+		code := http.StatusInternalServerError
+		message := http.StatusText(code)
+		var he *echo.HTTPError
+		if errors.As(err, &he) {
+			code = he.Code
+			message = http.StatusText(code)
+		}
+
+		// Send response
+		if c.Request().Method == http.MethodHead {
+			err = c.NoContent(he.Code)
+		} else {
+			err = c.String(code, asp.NewErrorResponseWithMessage(code, message).Serialize())
+		}
+		if err != nil {
+			log.Error().
+				Err(err).
+				Msg("Failed to send error response")
+		}
+
+	}
 	e.Use(middleware.Recover())
 	e.Use(middleware.TimeoutWithConfig(middleware.TimeoutConfig{
 		Timeout: time.Second * 10,
+		ErrorMessage: asp.NewErrorResponseWithMessage(
+			http.StatusServiceUnavailable,
+			http.StatusText(http.StatusServiceUnavailable),
+		).Serialize(),
 	}))
 	e.Use(middleware.RequestLoggerWithConfig(middleware.RequestLoggerConfig{
 		LogError:     true,
@@ -113,12 +147,12 @@ func main() {
 		},
 	}))
 
-	asp := e.Group("/ASP")
-	asp.GET("/getawardsinfo.aspx", gaih.HandleGET)
-	asp.GET("/getbackeninfo.aspx", gbih.HandleGET)
-	asp.GET("/getunlocksinfo.aspx", guih.HandleGET)
-	asp.GET("/searchforplayers.aspx", sfph.HandleGET)
-	asp.GET("/VerifyPlayer.aspx", vph.HandleGET)
+	g := e.Group("/ASP")
+	g.GET("/getawardsinfo.aspx", gaih.HandleGET)
+	g.GET("/getbackeninfo.aspx", gbih.HandleGET)
+	g.GET("/getunlocksinfo.aspx", guih.HandleGET)
+	g.GET("/searchforplayers.aspx", sfph.HandleGET)
+	g.GET("/VerifyPlayer.aspx", vph.HandleGET)
 
 	e.Logger.Fatal(e.Start(opts.ListenAddr))
 }
