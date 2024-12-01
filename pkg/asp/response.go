@@ -44,6 +44,28 @@ func (r *Response) write(lineType string, elems ...string) *Response {
 	return r
 }
 
+func (r *Response) AppendHeader(elems ...string) *Response {
+	return r.append(lineTypeHeader, elems...)
+}
+
+func (r *Response) AppendData(elems ...string) *Response {
+	return r.append(lineTypeData, elems...)
+}
+
+// append Appends elems to the last line of the given lineType or adds a new line if no line of lineType is found
+func (r *Response) append(lineType string, elems ...string) *Response {
+	// Iterate lines in reverse order, append element to first line with given type
+	for i := len(r.lines) - 1; i >= 0; i-- {
+		if len(r.lines[i]) > 0 && r.lines[i][0] == lineType {
+			r.lines[i] = append(r.lines[i], elems...)
+			return r
+		}
+	}
+
+	// No line with given type was found, write a new one
+	return r.write(lineType, elems...)
+}
+
 func (r *Response) Serialize() string {
 	serialized := ""
 	size := 0

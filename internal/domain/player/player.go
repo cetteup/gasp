@@ -4,9 +4,10 @@ type Player struct {
 	ID                uint32
 	Name              string
 	Joined            uint32
+	LastOnline        uint32
 	Time              uint32
 	Rounds            uint16
-	RankID            uint8
+	Rank              RankRef
 	Score             int64
 	CommandScore      int64
 	CombatScore       int64
@@ -25,16 +26,17 @@ type Player struct {
 	DamageAssists     uint32
 	TargetAssists     uint32
 	DriverSpecials    uint32
+	DriverAssists     uint32
 	TeamKills         uint32
 	TeamDamage        uint32
 	TeamVehicleDamage uint32
 	Suicides          uint16
 	KillStreak        uint16
 	DeathStreak       uint16
-	CommandTime       int32
-	SquadLeaderTime   int32
-	SquadMemberTime   int32
-	LoneWolfTime      int32
+	CommandTime       uint32
+	SquadLeaderTime   uint32
+	SquadMemberTime   uint32
+	LoneWolfTime      uint32
 	TimeParachute     int32
 	Wins              uint16
 	Losses            uint16
@@ -42,5 +44,11 @@ type Player struct {
 	Mode0             uint16
 	Mode1             uint16
 	Mode2             uint16
+	TimesKicked       uint16
+	TimesBanned       uint16
 	PermanentlyBanned bool
+}
+
+type RankRef struct {
+	ID uint8
 }

@@ -15,13 +15,20 @@ import (
 	"github.com/cetteup/gasp/cmd/gasp/internal/config"
 	"github.com/cetteup/gasp/cmd/gasp/internal/handler/getawardsinfo"
 	"github.com/cetteup/gasp/cmd/gasp/internal/handler/getbackendinfo"
+	"github.com/cetteup/gasp/cmd/gasp/internal/handler/getplayerinfo"
 	"github.com/cetteup/gasp/cmd/gasp/internal/handler/getunlocksinfo"
 	"github.com/cetteup/gasp/cmd/gasp/internal/handler/searchforplayers"
 	"github.com/cetteup/gasp/cmd/gasp/internal/handler/verifyplayer"
 	"github.com/cetteup/gasp/cmd/gasp/internal/options"
+	armysql "github.com/cetteup/gasp/internal/domain/army/sql"
 	awardsql "github.com/cetteup/gasp/internal/domain/award/sql"
+	fieldsql "github.com/cetteup/gasp/internal/domain/field/sql"
+	killsql "github.com/cetteup/gasp/internal/domain/kill/sql"
+	kitsql "github.com/cetteup/gasp/internal/domain/kit/sql"
 	playersql "github.com/cetteup/gasp/internal/domain/player/sql"
 	unlocksql "github.com/cetteup/gasp/internal/domain/unlock/sql"
+	vehiclesql "github.com/cetteup/gasp/internal/domain/vehicle/sql"
+	weaponsql "github.com/cetteup/gasp/internal/domain/weapon/sql"
 	"github.com/cetteup/gasp/internal/sqlutil"
 	"github.com/cetteup/gasp/pkg/asp"
 )
@@ -77,11 +84,26 @@ func main() {
 	}()
 
 	playerRepository := playersql.NewRepository(db)
+	armyRecordRepository := armysql.NewRecordRepository(db)
 	awardRecordRepository := awardsql.NewRecordRepository(db)
+	fieldRecordRepository := fieldsql.NewRecordRepository(db)
+	killHistoryRecordRepository := killsql.NewHistoryRecordRepository(db)
+	kitRecordRepository := kitsql.NewRecordRepository(db)
+	vehicleRecordRepository := vehiclesql.NewRecordRepository(db)
+	weaponRecordRepository := weaponsql.NewRecordRepository(db)
 	unlockRepository := unlocksql.NewRepository(db)
 	unlockRecordRepository := unlocksql.NewRecordRepository(db)
 	gaih := getawardsinfo.NewHandler(awardRecordRepository)
 	gbih := getbackendinfo.NewHandler(unlockRepository)
+	gpih := getplayerinfo.NewHandler(
+		playerRepository,
+		armyRecordRepository,
+		fieldRecordRepository,
+		killHistoryRecordRepository,
+		kitRecordRepository,
+		vehicleRecordRepository,
+		weaponRecordRepository,
+	)
 	guih := getunlocksinfo.NewHandler(playerRepository, awardRecordRepository, unlockRecordRepository)
 	sfph := searchforplayers.NewHandler(playerRepository)
 	vph := verifyplayer.NewHandler(playerRepository)
@@ -150,6 +172,7 @@ func main() {
 	g := e.Group("/ASP")
 	g.GET("/getawardsinfo.aspx", gaih.HandleGET)
 	g.GET("/getbackendinfo.aspx", gbih.HandleGET)
+	g.GET("/getplayerinfo.aspx", gpih.HandleGET)
 	g.GET("/getunlocksinfo.aspx", guih.HandleGET)
 	g.GET("/searchforplayers.aspx", sfph.HandleGET)
 	g.GET("/VerifyPlayer.aspx", vph.HandleGET)

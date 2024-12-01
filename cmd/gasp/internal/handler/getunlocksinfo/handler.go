@@ -120,7 +120,7 @@ func determineAvailableUnlockPoints(p player.Player, unlockRecords []unlock.Reco
 	}
 
 	// No more than 7 unlocks via rank, but don't let the number go negative
-	rankPoints := max(min(int(p.RankID)-1, 7), 0)
+	rankPoints := max(min(int(p.Rank.ID)-1, 7), 0)
 
 	// One point per level two badge
 	badgePoints := 0
