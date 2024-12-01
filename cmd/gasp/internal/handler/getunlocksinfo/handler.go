@@ -2,6 +2,7 @@ package getunlocksinfo
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"net/http"
 
@@ -51,9 +52,21 @@ func (h *Handler) HandleGET(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest).SetInternal(fmt.Errorf("invalid parameters: %w", err))
 	}
 
+	var p player.Player
 	var unlockRecords []unlock.Record
 	var awardRecords []award.Record
 	var runner task.AsyncRunner
+	runner.Append(func(ctx context.Context) error {
+		var err2 error
+		p, err2 = h.playerRepository.FindByID(ctx, params.PID)
+		if err2 != nil {
+			if errors.Is(err2, player.ErrPlayerNotFound) {
+				return echo.NewHTTPError(http.StatusNotFound)
+			}
+			return fmt.Errorf("failed to find player: %w", err2)
+		}
+		return nil
+	})
 	runner.Append(func(ctx context.Context) error {
 		var err2 error
 		unlockRecords, err2 = h.unlockRecordRepository.FindByPlayerID(ctx, params.PID)
@@ -78,27 +91,7 @@ func (h *Handler) HandleGET(c echo.Context) error {
 		return err
 	}
 
-	// To save an extra database query, the player is only loaded with the unlock records. If the player exists,
-	// every record contains the player details. If the player was not found, all player details will be zero values.
-	usedPoints := 0
-	var p unlock.PlayerStub
-	for _, record := range unlockRecords {
-		if record.Unlocked {
-			p = record.Player
-			usedPoints++
-		}
-		// Set player if not set yet and not a zero value
-		if p.ID == 0 && record.Player.ID != 0 {
-			p = record.Player
-		}
-	}
-
-	// If player id is still zero, no record container player details - indicating that the player was not found.
-	if p.ID == 0 {
-		return echo.NewHTTPError(http.StatusNotFound)
-	}
-
-	availablePoints := determineAvailableUnlockPoints(p, awardRecords, usedPoints)
+	availablePoints := determineAvailableUnlockPoints(p, unlockRecords, awardRecords)
 	resp := asp.NewOKResponse().
 		WriteHeader("pid", "nick", "asof").
 		WriteData(util.FormatUint(p.ID), p.Name, asp.Timestamp()).
@@ -113,7 +106,14 @@ func (h *Handler) HandleGET(c echo.Context) error {
 	return c.String(http.StatusOK, resp.Serialize())
 }
 
-func determineAvailableUnlockPoints(p unlock.PlayerStub, awardRecords []award.Record, usedPoints int) int {
+func determineAvailableUnlockPoints(p player.Player, unlockRecords []unlock.Record, awardRecords []award.Record) int {
+	usedPoints := 0
+	for _, record := range unlockRecords {
+		if record.Unlocked {
+			usedPoints++
+		}
+	}
+
 	// Player cannot have any unlock points available if they already unlocked everything
 	if usedPoints >= totalPossibleUnlocks {
 		return 0

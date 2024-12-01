@@ -35,7 +35,7 @@ func (h *Handler) HandleGET(c echo.Context) error {
 	for _, u := range unlocks {
 		resp.WriteData(
 			util.FormatUint(u.ID),
-			util.FormatUint(u.KitID),
+			util.FormatUint(u.Kit.ID),
 			u.Name,
 			u.Description,
 		)

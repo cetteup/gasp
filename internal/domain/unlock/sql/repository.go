@@ -15,7 +15,6 @@ const (
 	unlockTable            = "unlock"
 	unlockRecordTable      = "player_unlock"
 	unlockRequirementTable = "unlock_requirement"
-	playerTable            = "player"
 
 	columnID          = "id"
 	columnKitID       = "kit_id"
@@ -28,8 +27,6 @@ const (
 
 	columnParentID = "parent_id"
 	columnChildID  = "child_id"
-
-	columnRankID = "rank_id"
 
 	virtualColumnUnlocked = "unlocked"
 )
@@ -48,9 +45,9 @@ func (r *Repository) FindAll(ctx context.Context) ([]unlock.Unlock, error) {
 	query := sq.
 		Select(
 			columnID,
-			columnKitID,
 			columnName,
 			sqlutil.Quote(columnDescription), // DESC is a reserved keyword
+			columnKitID,
 		).
 		From(sqlutil.Quote(unlockTable)). // UNLOCK is a reserved keyword
 		OrderBy(fmt.Sprintf("%s ASC", columnID))
@@ -65,9 +62,9 @@ func (r *Repository) FindAll(ctx context.Context) ([]unlock.Unlock, error) {
 		var u unlock.Unlock
 		if err = rows.Scan(
 			&u.ID,
-			&u.KitID,
 			&u.Name,
 			&u.Description,
+			&u.Kit.ID,
 		); err != nil {
 			return nil, err
 		}
@@ -98,25 +95,14 @@ func (r *RecordRepository) FindByPlayerID(ctx context.Context, playerID uint32) 
 		unlockCTEName       = "u"
 	)
 
-	// First, set up a CTE with the player's actual unlocks from the record table and the player's relevant details.
-	// Due to the `RIGHT JOIN`, the CTE will contain a single row with the player details even if the player has not
-	// yet unlocked any weapons. This row is required, since we need the player details to be able to tell if
-	// any player with the given id exists.
+	// First, set up a CTE with the player's actual unlocks from the record table.
 	playerUnlockCTE := sq.
 		Select(
-			columnID,
-			columnName,
-			columnRankID,
+			columnPlayerID,
 			columnUnlockID,
 			columnTimestamp,
 		).
 		From(unlockRecordTable).
-		RightJoin(fmt.Sprintf(
-			"%s ON %s = %s",
-			playerTable,
-			sqlutil.QualifyColumn(unlockRecordTable, columnPlayerID),
-			sqlutil.QualifyColumn(playerTable, columnID),
-		)).
 		Where(sq.Eq{columnPlayerID: playerID}).
 		// squirrel does not support CTEs, since they are not part of generic SQL,
 		// so we need to use prefixes and suffixes to build and combine the expressions.
@@ -148,24 +134,17 @@ func (r *RecordRepository) FindByPlayerID(ctx context.Context, playerID uint32) 
 	// tier has not been unlocked yet.
 	availableUnlocksUnion := sq.
 		Select(
-			// We expect to find all 1st-tier unlocks for non-existent players, so make sure we default to safe values.
-			fmt.Sprintf("COALESCE(%s, 0) AS %s", sqlutil.QualifyColumn(playerUnlockCTEName, columnID), "player_id"),
-			fmt.Sprintf("COALESCE(%s, '') AS %s", sqlutil.QualifyColumn(playerUnlockCTEName, columnName), "player_name"),
-			fmt.Sprintf("COALESCE(%s, 0) AS %s", sqlutil.QualifyColumn(playerUnlockCTEName, columnRankID), "player_rank_id"),
+			// Hard-select the given player id since these unlocks have yet to be obtained by the player,
+			// thus there is no link to the player at the moment.
+			util.FormatUint(playerID),
 			sqlutil.QualifyColumn(unlockCTEName, columnID),
-			sqlutil.QualifyColumn(unlockCTEName, columnKitID),
 			sqlutil.QualifyColumn(unlockCTEName, columnName),
 			sqlutil.QualifyColumn(unlockCTEName, columnDescription),
+			sqlutil.QualifyColumn(unlockCTEName, columnKitID),
 			"0", // We're selecting non-obtained unlocks, so hard-set unlocked and timestamp to 0.
 			"0",
 		).
 		From(unlockCTEName).
-		LeftJoin(fmt.Sprintf(
-			"%s ON %s = %s",
-			playerUnlockCTEName,
-			util.FormatUint(playerID), // "Static" join using the player id since there actually is no common column
-			sqlutil.QualifyColumn(playerUnlockCTEName, columnID),
-		)).
 		Where(sq.And{
 			// Exclude any unlocks already obtained by the player
 			sq.Expr(fmt.Sprintf(
@@ -194,13 +173,11 @@ func (r *RecordRepository) FindByPlayerID(ctx context.Context, playerID uint32) 
 	// Finally, the first part of the union returns all unlocks obtained by the player (if any).
 	query := sq.
 		Select(
-			fmt.Sprintf("COALESCE(%s, 0) AS %s", sqlutil.QualifyColumn(playerUnlockCTEName, columnID), "player_id"),
-			fmt.Sprintf("COALESCE(%s, '') AS %s", sqlutil.QualifyColumn(playerUnlockCTEName, columnName), "player_name"),
-			fmt.Sprintf("COALESCE(%s, 0) AS %s", sqlutil.QualifyColumn(playerUnlockCTEName, columnRankID), "player_rank_id"),
+			sqlutil.QualifyColumn(playerUnlockCTEName, columnPlayerID),
 			sqlutil.QualifyColumn(unlockCTEName, columnID),
-			sqlutil.QualifyColumn(unlockCTEName, columnKitID),
 			sqlutil.QualifyColumn(unlockCTEName, columnName),
 			sqlutil.QualifyColumn(unlockCTEName, columnDescription),
+			sqlutil.QualifyColumn(unlockCTEName, columnKitID),
 			fmt.Sprintf("NOT ISNULL(%s) AS %s", sqlutil.QualifyColumn(playerUnlockCTEName, columnUnlockID), virtualColumnUnlocked),
 			fmt.Sprintf("COALESCE(%s, 0) AS %s", sqlutil.QualifyColumn(playerUnlockCTEName, columnTimestamp), columnTimestamp),
 		).
@@ -224,12 +201,10 @@ func (r *RecordRepository) FindByPlayerID(ctx context.Context, playerID uint32) 
 		var record unlock.Record
 		if err = rows.Scan(
 			&record.Player.ID,
-			&record.Player.Name,
-			&record.Player.RankID,
 			&record.Unlock.ID,
-			&record.Unlock.KitID,
 			&record.Unlock.Name,
 			&record.Unlock.Description,
+			&record.Unlock.Kit.ID,
 			&record.Unlocked,
 			&record.Timestamp,
 		); err != nil {
