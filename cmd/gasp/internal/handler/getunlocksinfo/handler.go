@@ -13,6 +13,7 @@ import (
 	"github.com/cetteup/gasp/internal/domain/unlock"
 	"github.com/cetteup/gasp/internal/util"
 	"github.com/cetteup/gasp/pkg/asp"
+	"github.com/cetteup/gasp/pkg/task"
 )
 
 const (
@@ -50,9 +51,31 @@ func (h *Handler) HandleGET(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest).SetInternal(fmt.Errorf("invalid parameters: %w", err))
 	}
 
-	unlockRecords, err := h.unlockRecordRepository.FindByPlayerID(c.Request().Context(), params.PID)
-	if err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError).SetInternal(fmt.Errorf("failed to find unlock records: %w", err))
+	var unlockRecords []unlock.Record
+	var awardRecords []award.Record
+	var runner task.AsyncRunner
+	runner.Append(func(ctx context.Context) error {
+		var err2 error
+		unlockRecords, err2 = h.unlockRecordRepository.FindByPlayerID(ctx, params.PID)
+		if err2 != nil {
+			return fmt.Errorf("failed to find unlock records: %w", err2)
+		}
+		return nil
+	})
+	runner.Append(func(ctx context.Context) error {
+		var err2 error
+		awardRecords, err2 = h.awardRecordRepository.FindByPlayerID(ctx, params.PID)
+		if err2 != nil {
+			return fmt.Errorf("failed to find award records: %w", err2)
+		}
+		return nil
+	})
+
+	if err := runner.Run(c.Request().Context()); err != nil {
+		// Return error as is so that any HTTPError returned by a task can be unwrapped and returned to the client.
+		// Note: Only a single task may return an HTTPError, else we end up with a race condition/flakiness
+		// (first task to return an HTTPError would set the response code).
+		return err
 	}
 
 	// To save an extra database query, the player is only loaded with the unlock records. If the player exists,
@@ -75,11 +98,7 @@ func (h *Handler) HandleGET(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusNotFound)
 	}
 
-	availablePoints, err := h.determineAvailableUnlockPoints(c.Request().Context(), p, usedPoints)
-	if err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError).SetInternal(fmt.Errorf("failed to determine availabe unlock points: %w", err))
-	}
-
+	availablePoints := determineAvailableUnlockPoints(p, awardRecords, usedPoints)
 	resp := asp.NewOKResponse().
 		WriteHeader("pid", "nick", "asof").
 		WriteData(util.FormatUint(p.ID), p.Name, asp.Timestamp()).
@@ -94,20 +113,14 @@ func (h *Handler) HandleGET(c echo.Context) error {
 	return c.String(http.StatusOK, resp.Serialize())
 }
 
-func (h *Handler) determineAvailableUnlockPoints(ctx context.Context, p unlock.PlayerStub, usedPoints int) (int, error) {
+func determineAvailableUnlockPoints(p unlock.PlayerStub, awardRecords []award.Record, usedPoints int) int {
 	// Player cannot have any unlock points available if they already unlocked everything
 	if usedPoints >= totalPossibleUnlocks {
-		return 0, nil
+		return 0
 	}
 
 	// No more than 7 unlocks via rank, but don't let the number go negative
 	rankPoints := max(min(int(p.RankID)-1, 7), 0)
-
-	// Filtering by award type/level here is slower, not faster
-	awardRecords, err := h.awardRecordRepository.FindByPlayerID(ctx, p.ID)
-	if err != nil {
-		return 0, fmt.Errorf("failed to find award records: %w", err)
-	}
 
 	// One point per level two badge
 	badgePoints := 0
@@ -119,7 +132,7 @@ func (h *Handler) determineAvailableUnlockPoints(ctx context.Context, p unlock.P
 	// Unless the data in the db is inconsistent, more than 7 points should never be seen
 	badgePoints = min(badgePoints, 7)
 
-	return max(rankPoints+badgePoints-usedPoints, 0), nil
+	return max(rankPoints+badgePoints-usedPoints, 0)
 }
 
 func isKitBadge(awardID uint32) bool {
