@@ -110,6 +110,7 @@ const (
 	GroupVehicleDeaths         = "vdt-"
 	GroupVehicleKillDeathRatio = "vkd-"
 	GroupVehicleRoadKills      = "vkr-"
+	GroupVehicleAccuracy       = "vac-"
 
 	// Weapon groups
 

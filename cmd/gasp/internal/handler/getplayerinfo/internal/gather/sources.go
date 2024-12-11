@@ -106,6 +106,7 @@ var keyToSource = map[string]dataSource{
 	info.GroupVehicleDeaths:         dataSourceVehicleRecords,
 	info.GroupVehicleKillDeathRatio: dataSourceVehicleRecords,
 	info.GroupVehicleRoadKills:      dataSourceVehicleRecords,
+	info.GroupVehicleAccuracy:       dataSourceVehicleRecords,
 
 	info.GroupWeaponTime:           dataSourceWeaponRecords,
 	info.GroupWeaponKills:          dataSourceWeaponRecords,

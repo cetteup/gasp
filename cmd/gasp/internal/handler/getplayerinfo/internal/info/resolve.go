@@ -31,7 +31,7 @@ func Resolve(info string, opts *ResolveOptions) []string {
 			out = append(out, buildGroupKeys(opts.FieldIDs, key)...)
 		case GroupKitTime, GroupKitKills, GroupKitDeaths, GroupKitKillDeathRatio:
 			out = append(out, buildGroupKeys(opts.KitIDs, key)...)
-		case GroupVehicleTime, GroupVehicleKills, GroupVehicleDeaths, GroupVehicleKillDeathRatio, GroupVehicleRoadKills:
+		case GroupVehicleTime, GroupVehicleKills, GroupVehicleDeaths, GroupVehicleKillDeathRatio, GroupVehicleRoadKills, GroupVehicleAccuracy:
 			out = append(out, buildGroupKeys(opts.VehicleIDs, key)...)
 		case GroupWeaponTime, GroupWeaponKills, GroupWeaponDeaths, GroupWeaponAccuracy, GroupWeaponKillDeathRatio:
 			out = append(out, buildGroupKeys(opts.WeaponIDs, key)...)

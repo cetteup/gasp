@@ -323,6 +323,7 @@ func (g *Gatherer) gatherVehicleRecordData(pid uint32, b *sync.Map[string, strin
 			b.Store(info.GroupVehicleDeaths+suffix, util.FormatUint(record.Deaths))
 			b.Store(info.GroupVehicleKillDeathRatio+suffix, formatRatio(ratio(record.Kills, record.Deaths)))
 			b.Store(info.GroupVehicleRoadKills+suffix, util.FormatUint(record.RoadKills))
+			b.Store(info.GroupVehicleAccuracy+suffix, "0") // Always zero
 
 			// Add road kills
 			roadKills += uint64(record.RoadKills)
