@@ -28,8 +28,8 @@ func Connect(host, dbname, user, passwd string) *sql.DB {
 	}
 
 	db.SetConnMaxLifetime(time.Minute * 3)
-	db.SetMaxOpenConns(10)
-	db.SetMaxIdleConns(10)
+	db.SetMaxOpenConns(76)
+	db.SetMaxIdleConns(76)
 
 	return db
 }

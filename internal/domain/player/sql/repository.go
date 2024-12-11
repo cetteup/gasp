@@ -18,6 +18,7 @@ const (
 	columnID                = "id"
 	columnName              = "name"
 	columnJoined            = "joined"
+	columnLastOnline        = "lastonline"
 	columnTime              = "time"
 	columnRounds            = "rounds"
 	columnRankID            = "rank_id"
@@ -39,6 +40,7 @@ const (
 	columnDamageAssists     = "damageassists"
 	columnTargetAssists     = "targetassists"
 	columnDriverSpecials    = "driverspecials"
+	columnDriverAssists     = "driverassists"
 	columnTeamKills         = "teamkills"
 	columnTeamDamage        = "teamdamage"
 	columnTeamVehicleDamage = "teamvehicledamage"
@@ -56,6 +58,8 @@ const (
 	columnMode0             = "mode0"
 	columnMode1             = "mode1"
 	columnMode2             = "mode2"
+	columnTimesKicked       = "kicked"
+	columnTimesBanned       = "banned"
 	columnPermanentlyBanned = "permban"
 
 	maxResults = 20
@@ -78,6 +82,7 @@ func (r *Repository) FindByID(ctx context.Context, playerID uint32) (player.Play
 			columnID,
 			columnName,
 			columnJoined,
+			columnLastOnline,
 			columnTime,
 			columnRounds,
 			columnRankID,
@@ -99,6 +104,7 @@ func (r *Repository) FindByID(ctx context.Context, playerID uint32) (player.Play
 			columnDamageAssists,
 			columnTargetAssists,
 			columnDriverSpecials,
+			columnDriverAssists,
 			columnTeamKills,
 			columnTeamDamage,
 			columnTeamVehicleDamage,
@@ -116,6 +122,8 @@ func (r *Repository) FindByID(ctx context.Context, playerID uint32) (player.Play
 			columnMode0,
 			columnMode1,
 			columnMode2,
+			columnTimesKicked,
+			columnTimesBanned,
 			columnPermanentlyBanned,
 		).
 		From(playerStatsTable).
@@ -126,9 +134,10 @@ func (r *Repository) FindByID(ctx context.Context, playerID uint32) (player.Play
 		&p.ID,
 		&p.Name,
 		&p.Joined,
+		&p.LastOnline,
 		&p.Time,
 		&p.Rounds,
-		&p.RankID,
+		&p.Rank.ID,
 		&p.Score,
 		&p.CommandScore,
 		&p.CombatScore,
@@ -147,6 +156,7 @@ func (r *Repository) FindByID(ctx context.Context, playerID uint32) (player.Play
 		&p.DamageAssists,
 		&p.TargetAssists,
 		&p.DriverSpecials,
+		&p.DriverAssists,
 		&p.TeamKills,
 		&p.TeamDamage,
 		&p.TeamVehicleDamage,
@@ -164,6 +174,8 @@ func (r *Repository) FindByID(ctx context.Context, playerID uint32) (player.Play
 		&p.Mode0,
 		&p.Mode1,
 		&p.Mode2,
+		&p.TimesKicked,
+		&p.TimesBanned,
 		&p.PermanentlyBanned,
 	); err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
@@ -181,6 +193,7 @@ func (r *Repository) FindWithNameMatching(ctx context.Context, name string, cond
 			columnID,
 			columnName,
 			columnJoined,
+			columnLastOnline,
 			columnTime,
 			columnRounds,
 			columnRankID,
@@ -202,6 +215,7 @@ func (r *Repository) FindWithNameMatching(ctx context.Context, name string, cond
 			columnDamageAssists,
 			columnTargetAssists,
 			columnDriverSpecials,
+			columnDriverAssists,
 			columnTeamKills,
 			columnTeamDamage,
 			columnTeamVehicleDamage,
@@ -219,6 +233,8 @@ func (r *Repository) FindWithNameMatching(ctx context.Context, name string, cond
 			columnMode0,
 			columnMode1,
 			columnMode2,
+			columnTimesKicked,
+			columnTimesBanned,
 			columnPermanentlyBanned,
 		).
 		From(playerStatsTable).
@@ -261,9 +277,10 @@ func (r *Repository) FindWithNameMatching(ctx context.Context, name string, cond
 			&p.ID,
 			&p.Name,
 			&p.Joined,
+			&p.LastOnline,
 			&p.Time,
 			&p.Rounds,
-			&p.RankID,
+			&p.Rank.ID,
 			&p.Score,
 			&p.CommandScore,
 			&p.CombatScore,
@@ -282,6 +299,7 @@ func (r *Repository) FindWithNameMatching(ctx context.Context, name string, cond
 			&p.DamageAssists,
 			&p.TargetAssists,
 			&p.DriverSpecials,
+			&p.DriverAssists,
 			&p.TeamKills,
 			&p.TeamDamage,
 			&p.TeamVehicleDamage,
@@ -299,6 +317,8 @@ func (r *Repository) FindWithNameMatching(ctx context.Context, name string, cond
 			&p.Mode0,
 			&p.Mode1,
 			&p.Mode2,
+			&p.TimesKicked,
+			&p.TimesBanned,
 			&p.PermanentlyBanned,
 		); err != nil {
 			return nil, err
