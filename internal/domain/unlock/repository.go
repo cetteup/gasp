@@ -2,6 +2,11 @@ package unlock
 
 import (
 	"context"
+	"errors"
+)
+
+var (
+	ErrRecordNotUnlocked = errors.New("record not unlocked")
 )
 
 type Repository interface {
@@ -9,5 +14,6 @@ type Repository interface {
 }
 
 type RecordRepository interface {
+	Insert(ctx context.Context, record Record) error
 	FindByPlayerID(ctx context.Context, playerID uint32) ([]Record, error)
 }

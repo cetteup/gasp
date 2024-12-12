@@ -89,6 +89,33 @@ func NewRecordRepository(runner sq.BaseRunner) *RecordRepository {
 	}
 }
 
+func (r *RecordRepository) Insert(ctx context.Context, record unlock.Record) error {
+	// Don't insert non-unlocked records
+	if !record.Unlocked {
+		return unlock.ErrRecordNotUnlocked
+	}
+
+	query := sq.
+		Insert(unlockRecordTable).
+		Columns(
+			columnPlayerID,
+			columnUnlockID,
+			columnTimestamp,
+		).
+		Values(
+			record.Player.ID,
+			record.Unlock.ID,
+			record.Timestamp,
+		)
+
+	_, err := query.RunWith(r.runner).ExecContext(ctx)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (r *RecordRepository) FindByPlayerID(ctx context.Context, playerID uint32) ([]unlock.Record, error) {
 	const (
 		playerUnlockCTEName = "pu"

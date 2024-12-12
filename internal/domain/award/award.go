@@ -28,3 +28,19 @@ type Record struct {
 type PlayerRef struct {
 	ID uint32
 }
+
+func IsKitBadge(awardID uint32) bool {
+	switch awardID {
+	case
+		1031119, // Assault
+		1031120, // Anti-tank
+		1031109, // Sniper
+		1031115, // Spec-Ops
+		1031121, // Support
+		1031105, // Engineer
+		1031113: // Medic
+		return true
+	default:
+		return false
+	}
+}

@@ -1,10 +1,12 @@
-package getunlocksinfo
+package selectunlock
 
 import (
 	"context"
 	"errors"
 	"fmt"
 	"net/http"
+	"slices"
+	"time"
 
 	"github.com/go-playground/validator/v10"
 	"github.com/labstack/echo/v4"
@@ -12,7 +14,6 @@ import (
 	"github.com/cetteup/gasp/internal/domain/award"
 	"github.com/cetteup/gasp/internal/domain/player"
 	"github.com/cetteup/gasp/internal/domain/unlock"
-	"github.com/cetteup/gasp/internal/util"
 	"github.com/cetteup/gasp/pkg/asp"
 	"github.com/cetteup/gasp/pkg/task"
 )
@@ -35,9 +36,10 @@ func NewHandler(
 	}
 }
 
-func (h *Handler) HandleGET(c echo.Context) error {
+func (h *Handler) HandlePOST(c echo.Context) error {
 	params := struct {
-		PID uint32 `query:"pid" validate:"required"`
+		PID      uint32 `form:"pid" validate:"required"`
+		UnlockID uint16 `form:"id" validate:"required,oneof=11 22 33 44 55 66 77 88 99 111 222 333 444 555"`
 	}{}
 
 	if err := c.Bind(&params); err != nil {
@@ -87,24 +89,36 @@ func (h *Handler) HandleGET(c echo.Context) error {
 		return err
 	}
 
-	availablePoints := unlock.DetermineAvailablePoints(p, unlockRecords, awardRecords)
-	resp := asp.NewOKResponse().
-		WriteHeader("pid", "nick", "asof").
-		WriteData(util.FormatUint(p.ID), p.Name, asp.Timestamp()).
-		WriteHeader("enlisted", "officer").
-		WriteData(util.FormatInt(availablePoints), "0").
-		WriteHeader("id", "state")
-
-	for _, record := range unlockRecords {
-		resp.WriteData(util.FormatUint(record.Unlock.ID), encodeUnlocked(record.Unlocked))
+	// Ensure selected unlock has not yet been unlocked
+	// Could also consider this a noop, but the endpoint is POST not PUT, not being idempotent is fine
+	if slices.ContainsFunc(unlockRecords, func(record unlock.Record) bool {
+		// Records may contain non-unlocked entries
+		return record.Unlock.ID == params.UnlockID && record.Unlocked
+	}) {
+		return echo.NewHTTPError(http.StatusUnprocessableEntity).SetInternal(errors.New("unlock already unlocked"))
 	}
 
-	return c.String(http.StatusOK, resp.Serialize())
-}
-
-func encodeUnlocked(unlocked bool) string {
-	if unlocked {
-		return "s"
+	// Ensure players has points available
+	if unlock.DetermineAvailablePoints(p, unlockRecords, awardRecords) < 1 {
+		return echo.NewHTTPError(http.StatusUnprocessableEntity).SetInternal(errors.New("no unlock points available"))
 	}
-	return "n"
+
+	record := unlock.Record{
+		Player: unlock.PlayerRef{
+			ID: p.ID,
+		},
+		Unlock: unlock.Unlock{
+			ID: params.UnlockID,
+		},
+		Unlocked: true,
+		// Will overflow on 7 February 2106 at 06:28:15 UTC
+		Timestamp: uint32(time.Now().UTC().Unix()),
+	}
+
+	err := h.unlockRecordRepository.Insert(c.Request().Context(), record)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError).SetInternal(fmt.Errorf("failed to insert unlock record: %w", err))
+	}
+
+	return c.String(http.StatusOK, asp.NewOKResponse().Serialize())
 }

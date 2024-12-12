@@ -20,6 +20,7 @@ import (
 	"github.com/cetteup/gasp/cmd/gasp/internal/handler/getunlocksinfo"
 	"github.com/cetteup/gasp/cmd/gasp/internal/handler/ranknotification"
 	"github.com/cetteup/gasp/cmd/gasp/internal/handler/searchforplayers"
+	"github.com/cetteup/gasp/cmd/gasp/internal/handler/selectunlock"
 	"github.com/cetteup/gasp/cmd/gasp/internal/handler/verifyplayer"
 	"github.com/cetteup/gasp/cmd/gasp/internal/options"
 	armysql "github.com/cetteup/gasp/internal/domain/army/sql"
@@ -110,6 +111,7 @@ func main() {
 	guih := getunlocksinfo.NewHandler(playerRepository, awardRecordRepository, unlockRecordRepository)
 	rnh := ranknotification.NewHandler(playerRepository)
 	sfph := searchforplayers.NewHandler(playerRepository)
+	suh := selectunlock.NewHandler(playerRepository, awardRecordRepository, unlockRecordRepository)
 	vph := verifyplayer.NewHandler(playerRepository)
 
 	e := echo.New()
@@ -182,6 +184,7 @@ func main() {
 	g.GET("/ranknotification.aspx", rnh.HandleGET)
 	g.GET("/searchforplayers.aspx", sfph.HandleGET)
 	g.GET("/VerifyPlayer.aspx", vph.HandleGET)
+	g.POST("/selectunlock.aspx", suh.HandlePOST)
 
 	if err = e.Start(opts.ListenAddr); !errors.Is(err, http.ErrServerClosed) {
 		log.Fatal().
