@@ -13,7 +13,7 @@ import (
 )
 
 const (
-	playerStatsTable = "player"
+	playerTable = "player"
 
 	columnID                = "id"
 	columnName              = "name"
@@ -78,6 +78,21 @@ func NewRepository(runner sq.BaseRunner) *Repository {
 	}
 }
 
+func (r *Repository) ResetRankChangeFlags(ctx context.Context, id uint32) error {
+	query := sq.
+		Update(playerTable).
+		Set(columnRankChanged, false).
+		Set(columnRankDecreased, false).
+		Where(sq.Eq{columnID: id})
+
+	_, err := query.RunWith(r.runner).ExecContext(ctx)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (r *Repository) FindByID(ctx context.Context, playerID uint32) (player.Player, error) {
 	query := sq.
 		Select(
@@ -130,7 +145,7 @@ func (r *Repository) FindByID(ctx context.Context, playerID uint32) (player.Play
 			columnTimesBanned,
 			columnPermanentlyBanned,
 		).
-		From(playerStatsTable).
+		From(playerTable).
 		Where(sq.Eq{columnID: playerID})
 
 	var p player.Player
@@ -245,7 +260,7 @@ func (r *Repository) FindWithNameMatching(ctx context.Context, name string, cond
 			columnTimesBanned,
 			columnPermanentlyBanned,
 		).
-		From(playerStatsTable).
+		From(playerTable).
 		Limit(maxResults)
 
 	// LIKE values are parameterized and bound later, so string concatenation is build the *value* not the query

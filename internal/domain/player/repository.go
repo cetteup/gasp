@@ -23,6 +23,7 @@ var (
 )
 
 type Repository interface {
+	ResetRankChangeFlags(ctx context.Context, id uint32) error
 	FindByID(ctx context.Context, id uint32) (Player, error)
 	FindWithNameMatching(ctx context.Context, name string, condition MatchCondition, order SortOrder) ([]Player, error)
 }
