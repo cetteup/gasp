@@ -55,6 +55,8 @@ const (
 	columnWins              = "wins"
 	columnLosses            = "losses"
 	columnBestScore         = "bestscore"
+	columnRankChanged       = "chng"
+	columnRankDecreased     = "decr"
 	columnMode0             = "mode0"
 	columnMode1             = "mode1"
 	columnMode2             = "mode2"
@@ -119,6 +121,8 @@ func (r *Repository) FindByID(ctx context.Context, playerID uint32) (player.Play
 			columnWins,
 			columnLosses,
 			columnBestScore,
+			columnRankChanged,
+			columnRankDecreased,
 			columnMode0,
 			columnMode1,
 			columnMode2,
@@ -171,6 +175,8 @@ func (r *Repository) FindByID(ctx context.Context, playerID uint32) (player.Play
 		&p.Wins,
 		&p.Losses,
 		&p.BestScore,
+		&p.RankChanged,
+		&p.RankDecreased,
 		&p.Mode0,
 		&p.Mode1,
 		&p.Mode2,
@@ -230,6 +236,8 @@ func (r *Repository) FindWithNameMatching(ctx context.Context, name string, cond
 			columnWins,
 			columnLosses,
 			columnBestScore,
+			columnRankChanged,
+			columnRankDecreased,
 			columnMode0,
 			columnMode1,
 			columnMode2,
@@ -314,6 +322,8 @@ func (r *Repository) FindWithNameMatching(ctx context.Context, name string, cond
 			&p.Wins,
 			&p.Losses,
 			&p.BestScore,
+			&p.RankChanged,
+			&p.RankDecreased,
 			&p.Mode0,
 			&p.Mode1,
 			&p.Mode2,

@@ -119,7 +119,7 @@ func (g *Gatherer) gatherPlayerData(pid uint32, b *sync.Map[string, string]) tas
 		b.Store(info.KeyMode1, util.FormatUint(p.Mode1))
 		b.Store(info.KeyMode2, util.FormatUint(p.Mode2))
 		b.Store(info.KeyTime, util.FormatUint(p.Time))
-		b.Store(info.KeySMOC, formatBool(p.Rank.ID == rank.SergeantMajorOfTheCorp))
+		b.Store(info.KeySMOC, dto.FormatBool(p.Rank.ID == rank.SergeantMajorOfTheCorp))
 		b.Store(info.KeyCombatScore, util.FormatInt(p.CombatScore))
 		b.Store(info.KeyKills, util.FormatUint(p.Kills))
 		b.Store(info.KeyDamageAssists, util.FormatUint(p.DamageAssists))
@@ -452,13 +452,6 @@ func ratio[A, B constraints.Integer](a A, b B) (int64, int64) {
 
 func formatRatio[A, B constraints.Integer](a A, b B) string {
 	return fmt.Sprintf("%d:%d", a, b)
-}
-
-func formatBool(b bool) string {
-	if b {
-		return "1"
-	}
-	return "0"
 }
 
 func fromDomainFieldID(fieldID uint16) uint16 {

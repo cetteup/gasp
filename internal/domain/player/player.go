@@ -41,6 +41,8 @@ type Player struct {
 	Wins              uint16
 	Losses            uint16
 	BestScore         uint16
+	RankChanged       bool
+	RankDecreased     bool
 	Mode0             uint16
 	Mode1             uint16
 	Mode2             uint16

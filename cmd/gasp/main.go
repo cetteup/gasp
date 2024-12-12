@@ -16,6 +16,7 @@ import (
 	"github.com/cetteup/gasp/cmd/gasp/internal/handler/getawardsinfo"
 	"github.com/cetteup/gasp/cmd/gasp/internal/handler/getbackendinfo"
 	"github.com/cetteup/gasp/cmd/gasp/internal/handler/getplayerinfo"
+	"github.com/cetteup/gasp/cmd/gasp/internal/handler/getrankinfo"
 	"github.com/cetteup/gasp/cmd/gasp/internal/handler/getunlocksinfo"
 	"github.com/cetteup/gasp/cmd/gasp/internal/handler/searchforplayers"
 	"github.com/cetteup/gasp/cmd/gasp/internal/handler/verifyplayer"
@@ -104,6 +105,7 @@ func main() {
 		vehicleRecordRepository,
 		weaponRecordRepository,
 	)
+	grih := getrankinfo.NewHandler(playerRepository)
 	guih := getunlocksinfo.NewHandler(playerRepository, awardRecordRepository, unlockRecordRepository)
 	sfph := searchforplayers.NewHandler(playerRepository)
 	vph := verifyplayer.NewHandler(playerRepository)
@@ -173,6 +175,7 @@ func main() {
 	g.GET("/getawardsinfo.aspx", gaih.HandleGET)
 	g.GET("/getbackendinfo.aspx", gbih.HandleGET)
 	g.GET("/getplayerinfo.aspx", gpih.HandleGET)
+	g.GET("/getrankinfo.aspx", grih.HandleGET)
 	g.GET("/getunlocksinfo.aspx", guih.HandleGET)
 	g.GET("/searchforplayers.aspx", sfph.HandleGET)
 	g.GET("/VerifyPlayer.aspx", vph.HandleGET)
