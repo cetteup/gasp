@@ -56,11 +56,11 @@ const (
 
 	KeyTopVictimID      = "tvcr"
 	KeyTopOpponentID    = "topr"
-	KeyTopVictimKills   = "mvks"
-	KeyTopOpponentKills = "vmks"
-	KeyTopVictimName    = "mvns"
+	KeyTopVictimKills   = "mvks" // "my victim kills" as per BF2 amd64 Linux binary 0x78b4c9
+	KeyTopOpponentKills = "vmks" // "victimized me kills" as per BF2 amd64 Linux binary 0x78b4f6
+	KeyTopVictimName    = "mvns" // "my victim name" as per BF2 amd64 Linux binary 0x78b4b5
+	KeyTopOpponentName  = "vmns" // "victimized me name" as per BF2 amd64 Linux binary 0x78b4de
 	KeyTopVictimRank    = "mvrs"
-	KeyTopOpponentName  = "vmns"
 	KeyTopOpponentRank  = "vmrs"
 
 	// Kit-related keys
@@ -76,8 +76,8 @@ const (
 
 	KeyAccuracy        = "osaa"
 	KeyFavoriteWeapon  = "fwea"
-	KeyNightVisionTime = "tnv"
-	KeyGasMaskTime     = "tgm"
+	KeyNightVisionTime = "tnv" // "time in night vision" as per BF2 amd64 Linux binary 0x78aad5
+	KeyGasMaskTime     = "tgm" // "time in gas mask" as per BF2 amd64 Linux binary 0x78aaee
 
 	/*
 		Groups allow requesting data for a group of identical type objects (kits, vehicles, weapons etc.)

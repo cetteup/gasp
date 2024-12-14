@@ -81,6 +81,7 @@ func buildResponse(realNick, oldNick string, realPID, oldPID uint32) *asp.Respon
 	resp := asp.NewOKResponse().
 		WriteHeader("pid", "nick", "spid", "asof")
 
+	// Result values according to bf2 amd64 Linux binary 0x789698
 	if realNick == oldNick && realPID == oldPID {
 		resp.
 			// Using oldNick instead of realNick here to ensure we return the (determined matching) name as-is
