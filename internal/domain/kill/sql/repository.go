@@ -48,22 +48,22 @@ func (r *HistoryRecordRepository) FindTopRelatedByPlayerID(ctx context.Context, 
 		FromSelect(
 			sq.
 				Select(
-					fmt.Sprintf("%s AS %s", sqlutil.QualifyColumn(killHistoryRecordTable, columnVictim), virtualColumnPlayerID),
-					fmt.Sprintf("%s AS %s", sqlutil.QualifyColumn(killHistoryRecordTable, columnAttacker), virtualColumnOtherID),
-					sqlutil.QualifyColumn(playerTable, columnName),
-					sqlutil.QualifyColumn(playerTable, columnRankID),
-					sqlutil.QualifyColumn(killHistoryRecordTable, columnKills),
+					fmt.Sprintf("%s AS %s", sqlutil.Qualify(killHistoryRecordTable, columnVictim), virtualColumnPlayerID),
+					fmt.Sprintf("%s AS %s", sqlutil.Qualify(killHistoryRecordTable, columnAttacker), virtualColumnOtherID),
+					sqlutil.Qualify(playerTable, columnName),
+					sqlutil.Qualify(playerTable, columnRankID),
+					sqlutil.Qualify(killHistoryRecordTable, columnKills),
 					util.FormatInt(int(kill.RelationTypeAttacker)), // Hard-set virtual type column value to victim (*other* player is attacker)
 				).
 				From(killHistoryRecordTable).
 				InnerJoin(fmt.Sprintf(
 					"%s ON %s = %s",
 					playerTable,
-					sqlutil.QualifyColumn(killHistoryRecordTable, columnAttacker),
-					sqlutil.QualifyColumn(playerTable, columnID),
+					sqlutil.Qualify(killHistoryRecordTable, columnAttacker),
+					sqlutil.Qualify(playerTable, columnID),
 				)).
-				Where(sq.Eq{sqlutil.QualifyColumn(killHistoryRecordTable, columnVictim): playerID}).
-				OrderBy(fmt.Sprintf("%s DESC", sqlutil.QualifyColumn(killHistoryRecordTable, columnKills))).
+				Where(sq.Eq{sqlutil.Qualify(killHistoryRecordTable, columnVictim): playerID}).
+				OrderBy(fmt.Sprintf("%s DESC", sqlutil.Qualify(killHistoryRecordTable, columnKills))).
 				Limit(1),
 			attackerDTName,
 		).
@@ -74,22 +74,22 @@ func (r *HistoryRecordRepository) FindTopRelatedByPlayerID(ctx context.Context, 
 		FromSelect(
 			sq.
 				Select(
-					fmt.Sprintf("%s AS %s", sqlutil.QualifyColumn(killHistoryRecordTable, columnAttacker), virtualColumnPlayerID),
-					fmt.Sprintf("%s AS %s", sqlutil.QualifyColumn(killHistoryRecordTable, columnVictim), virtualColumnOtherID),
-					sqlutil.QualifyColumn(playerTable, columnName),
-					sqlutil.QualifyColumn(playerTable, columnRankID),
-					sqlutil.QualifyColumn(killHistoryRecordTable, columnKills),
+					fmt.Sprintf("%s AS %s", sqlutil.Qualify(killHistoryRecordTable, columnAttacker), virtualColumnPlayerID),
+					fmt.Sprintf("%s AS %s", sqlutil.Qualify(killHistoryRecordTable, columnVictim), virtualColumnOtherID),
+					sqlutil.Qualify(playerTable, columnName),
+					sqlutil.Qualify(playerTable, columnRankID),
+					sqlutil.Qualify(killHistoryRecordTable, columnKills),
 					util.FormatInt(int(kill.RelationTypeVictim)), // Hard-set virtual type column value to victim (*other* player is victim)
 				).
 				From(killHistoryRecordTable).
 				InnerJoin(fmt.Sprintf(
 					"%s ON %s = %s",
 					playerTable,
-					sqlutil.QualifyColumn(killHistoryRecordTable, columnVictim),
-					sqlutil.QualifyColumn(playerTable, columnID),
+					sqlutil.Qualify(killHistoryRecordTable, columnVictim),
+					sqlutil.Qualify(playerTable, columnID),
 				)).
-				Where(sq.Eq{sqlutil.QualifyColumn(killHistoryRecordTable, columnAttacker): playerID}).
-				OrderBy(fmt.Sprintf("%s DESC", sqlutil.QualifyColumn(killHistoryRecordTable, columnKills))).
+				Where(sq.Eq{sqlutil.Qualify(killHistoryRecordTable, columnAttacker): playerID}).
+				OrderBy(fmt.Sprintf("%s DESC", sqlutil.Qualify(killHistoryRecordTable, columnKills))).
 				Limit(1),
 			victimDTName,
 		).

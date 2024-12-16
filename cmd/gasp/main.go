@@ -15,6 +15,7 @@ import (
 	"github.com/cetteup/gasp/cmd/gasp/internal/config"
 	"github.com/cetteup/gasp/cmd/gasp/internal/handler/getawardsinfo"
 	"github.com/cetteup/gasp/cmd/gasp/internal/handler/getbackendinfo"
+	"github.com/cetteup/gasp/cmd/gasp/internal/handler/getleaderboard"
 	"github.com/cetteup/gasp/cmd/gasp/internal/handler/getplayerinfo"
 	"github.com/cetteup/gasp/cmd/gasp/internal/handler/getrankinfo"
 	"github.com/cetteup/gasp/cmd/gasp/internal/handler/getunlocksinfo"
@@ -28,6 +29,7 @@ import (
 	fieldsql "github.com/cetteup/gasp/internal/domain/field/sql"
 	killsql "github.com/cetteup/gasp/internal/domain/kill/sql"
 	kitsql "github.com/cetteup/gasp/internal/domain/kit/sql"
+	leaderboardsql "github.com/cetteup/gasp/internal/domain/leaderboard/sql"
 	playersql "github.com/cetteup/gasp/internal/domain/player/sql"
 	unlocksql "github.com/cetteup/gasp/internal/domain/unlock/sql"
 	vehiclesql "github.com/cetteup/gasp/internal/domain/vehicle/sql"
@@ -92,12 +94,14 @@ func main() {
 	fieldRecordRepository := fieldsql.NewRecordRepository(db)
 	killHistoryRecordRepository := killsql.NewHistoryRecordRepository(db)
 	kitRecordRepository := kitsql.NewRecordRepository(db)
+	leaderboardRepository := leaderboardsql.NewRepository(db)
 	vehicleRecordRepository := vehiclesql.NewRecordRepository(db)
 	weaponRecordRepository := weaponsql.NewRecordRepository(db)
 	unlockRepository := unlocksql.NewRepository(db)
 	unlockRecordRepository := unlocksql.NewRecordRepository(db)
 	gaih := getawardsinfo.NewHandler(awardRecordRepository)
 	gbih := getbackendinfo.NewHandler(unlockRepository)
+	glbh := getleaderboard.NewHandler(leaderboardRepository)
 	gpih := getplayerinfo.NewHandler(
 		playerRepository,
 		armyRecordRepository,
@@ -180,6 +184,7 @@ func main() {
 	g := e.Group("/ASP")
 	g.GET("/getawardsinfo.aspx", gaih.HandleGET)
 	g.GET("/getbackendinfo.aspx", gbih.HandleGET)
+	g.GET("/getleaderboard.aspx", glbh.HandleGET)
 	g.GET("/getplayerinfo.aspx", gpih.HandleGET)
 	g.GET("/getrankinfo.aspx", grih.HandleGET)
 	g.GET("/getunlocksinfo.aspx", guih.HandleGET)
