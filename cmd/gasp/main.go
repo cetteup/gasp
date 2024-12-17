@@ -133,9 +133,11 @@ func main() {
 
 		// Send response
 		if c.Request().Method == http.MethodHead {
-			err = c.NoContent(he.Code)
+			err = c.NoContent(code)
 		} else {
-			err = c.String(code, asp.NewErrorResponseWithMessage(code, message).Serialize())
+			// Always return 200/OK to match original GameSpy behaviour.
+			// Note: Logs will contain the "underlying" status code, not 200.
+			err = c.String(http.StatusOK, asp.NewErrorResponseWithMessage(code, message).Serialize())
 		}
 		if err != nil {
 			log.Error().
