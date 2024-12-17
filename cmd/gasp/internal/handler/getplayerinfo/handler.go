@@ -81,7 +81,7 @@ func (h *Handler) HandleGET(c echo.Context) error {
 		if errors.Is(err, player.ErrPlayerNotFound) {
 			return echo.NewHTTPError(http.StatusNotFound)
 		}
-		return echo.NewHTTPError(http.StatusBadRequest).SetInternal(fmt.Errorf("failed to gather values: %w", err))
+		return echo.NewHTTPError(http.StatusInternalServerError).SetInternal(fmt.Errorf("failed to gather values: %w", err))
 	}
 
 	resp, err := buildResponse(keys, values)
