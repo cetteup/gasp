@@ -58,9 +58,6 @@ func (h *Handler) HandlePOST(c echo.Context) error {
 		var err2 error
 		p, err2 = h.playerRepository.FindByID(ctx, params.PID)
 		if err2 != nil {
-			if errors.Is(err2, player.ErrPlayerNotFound) {
-				return echo.NewHTTPError(http.StatusNotFound)
-			}
 			return fmt.Errorf("failed to find player: %w", err2)
 		}
 		return nil
@@ -83,9 +80,9 @@ func (h *Handler) HandlePOST(c echo.Context) error {
 	})
 
 	if err := runner.Run(c.Request().Context()); err != nil {
-		// Return error as is so that any HTTPError returned by a task can be unwrapped and returned to the client.
-		// Note: Only a single task may return an HTTPError, else we end up with a race condition/flakiness
-		// (first task to return an HTTPError would set the response code).
+		if errors.Is(err, player.ErrPlayerNotFound) {
+			return echo.NewHTTPError(http.StatusNotFound)
+		}
 		return err
 	}
 
