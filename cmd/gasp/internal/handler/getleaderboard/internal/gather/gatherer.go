@@ -231,7 +231,7 @@ func (g *Gatherer) gatherWeaponData(ctx context.Context, id string, filter leade
 			// See https://github.com/startersclan/asp/issues/86 for details
 			"detahsby":    "0",
 			"timeused":    util.FormatUint(entry.Data.Time),
-			"accuracy":    util.FormatUint(util.DivideUint(entry.Data.ShotsHit, entry.Data.ShotsFired) * 100),
+			"accuracy":    util.FormatUint(util.DivideUint(entry.Data.ShotsHit*100, entry.Data.ShotsFired)),
 			"playerrank":  util.FormatUint(entry.Data.Player.Rank.ID),
 			"countrycode": strings.ToUpper(entry.Data.Player.Country),
 		})
