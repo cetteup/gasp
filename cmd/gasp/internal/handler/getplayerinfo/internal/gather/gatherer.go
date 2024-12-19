@@ -376,7 +376,7 @@ func (g *Gatherer) gatherWeaponRecordData(pid uint32, b *sync.Map[string, string
 				b.Store(info.GroupWeaponTime+suffix, util.FormatUint(record.Time))
 				b.Store(info.GroupWeaponKills+suffix, util.FormatUint(record.Kills))
 				b.Store(info.GroupWeaponDeaths+suffix, util.FormatUint(record.Deaths))
-				b.Store(info.GroupWeaponAccuracy+suffix, util.FormatFloat(util.DivideFloat(record.ShotsHit, record.ShotsFired)*100))
+				b.Store(info.GroupWeaponAccuracy+suffix, util.FormatUint(util.DivideUint(record.ShotsHit, record.ShotsFired)*100))
 				b.Store(info.GroupWeaponKillDeathRatio+suffix, formatRatio(ratio(record.Kills, record.Deaths)))
 			} else if isExplosiveID(id) {
 				explosives.Time += record.Time
@@ -412,12 +412,12 @@ func (g *Gatherer) gatherWeaponRecordData(pid uint32, b *sync.Map[string, string
 			b.Store(info.GroupWeaponTime+suffix, util.FormatUint(record.Time))
 			b.Store(info.GroupWeaponKills+suffix, util.FormatUint(record.Kills))
 			b.Store(info.GroupWeaponDeaths+suffix, util.FormatUint(record.Deaths))
-			b.Store(info.GroupWeaponAccuracy+suffix, util.FormatFloat(util.DivideFloat(record.ShotsHit, record.ShotsFired)*100))
+			b.Store(info.GroupWeaponAccuracy+suffix, util.FormatUint(util.DivideUint(record.ShotsHit, record.ShotsFired)*100))
 			b.Store(info.GroupWeaponKillDeathRatio+suffix, formatRatio(ratio(record.Kills, record.Deaths)))
 		}
 
 		b.Store(info.KeyFavoriteWeapon, util.FormatUint(favorite.Weapon.ID))
-		b.Store(info.KeyAccuracy, util.FormatFloat(util.DivideFloat(shotsHit, shotsFired)*100))
+		b.Store(info.KeyAccuracy, util.FormatUint(util.DivideUint(shotsHit, shotsFired)*100))
 
 		return nil
 	}
