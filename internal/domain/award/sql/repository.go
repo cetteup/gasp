@@ -39,30 +39,30 @@ func NewRecordRepository(runner sq.BaseRunner) *RecordRepository {
 func (r *RecordRepository) FindByPlayerID(ctx context.Context, playerID uint32) ([]award.Record, error) {
 	query := sq.
 		Select(
-			sqlutil.QualifyColumn(awardRecordTable, columnPlayerID),
-			sqlutil.QualifyColumn(awardRecordTable, columnAwardID),
-			sqlutil.QualifyColumn(awardTable, columnType),
-			sqlutil.QualifyColumn(awardRecordTable, columnRoundID),
-			sqlutil.QualifyColumn(roundTable, columnEnd),
-			sqlutil.QualifyColumn(awardRecordTable, columnLevel),
+			sqlutil.Qualify(awardRecordTable, columnPlayerID),
+			sqlutil.Qualify(awardRecordTable, columnAwardID),
+			sqlutil.Qualify(awardTable, columnType),
+			sqlutil.Qualify(awardRecordTable, columnRoundID),
+			sqlutil.Qualify(roundTable, columnEnd),
+			sqlutil.Qualify(awardRecordTable, columnLevel),
 		).
 		From(awardRecordTable).
 		InnerJoin(fmt.Sprintf(
 			"%s ON %s = %s",
 			awardTable,
-			sqlutil.QualifyColumn(awardRecordTable, columnAwardID),
-			sqlutil.QualifyColumn(awardTable, columnID),
+			sqlutil.Qualify(awardRecordTable, columnAwardID),
+			sqlutil.Qualify(awardTable, columnID),
 		)).
 		LeftJoin(fmt.Sprintf(
 			"%s ON %s = %s",
 			roundTable,
-			sqlutil.QualifyColumn(awardRecordTable, columnRoundID),
-			sqlutil.QualifyColumn(roundTable, columnID),
+			sqlutil.Qualify(awardRecordTable, columnRoundID),
+			sqlutil.Qualify(roundTable, columnID),
 		)).
-		Where(sq.Eq{sqlutil.QualifyColumn(awardRecordTable, columnPlayerID): playerID}).
+		Where(sq.Eq{sqlutil.Qualify(awardRecordTable, columnPlayerID): playerID}).
 		OrderBy(
-			fmt.Sprintf("%s ASC", sqlutil.QualifyColumn(awardRecordTable, columnAwardID)),
-			fmt.Sprintf("%s ASC", sqlutil.QualifyColumn(awardRecordTable, columnLevel)),
+			fmt.Sprintf("%s ASC", sqlutil.Qualify(awardRecordTable, columnAwardID)),
+			fmt.Sprintf("%s ASC", sqlutil.Qualify(awardRecordTable, columnLevel)),
 		)
 
 	rows, err := query.RunWith(r.runner).QueryContext(ctx)

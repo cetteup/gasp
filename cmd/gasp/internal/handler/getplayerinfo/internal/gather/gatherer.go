@@ -127,11 +127,11 @@ func (g *Gatherer) gatherPlayerData(pid uint32, b *sync.Map[string, string]) tas
 		b.Store(info.KeySuicides, util.FormatUint(p.Suicides))
 		b.Store(info.KeyKillStreak, util.FormatUint(p.KillStreak))
 		b.Store(info.KeyDeathStreak, util.FormatUint(p.DeathStreak))
-		b.Store(info.KeyKillsPerMinute, util.FormatFloat(divide(p.Kills*60, p.Time)))
-		b.Store(info.KeyDeathsPerMinute, util.FormatFloat(divide(p.Deaths*60, p.Time)))
-		b.Store(info.KeyScorePreMinute, util.FormatFloat(divide(p.Score*60, p.Time)))
-		b.Store(info.KeyKillsPerRound, util.FormatFloat(divide(p.Kills, p.Rounds)))
-		b.Store(info.KeyDeathsPerRound, util.FormatFloat(divide(p.Deaths, p.Rounds)))
+		b.Store(info.KeyKillsPerMinute, util.FormatFloat(util.DivideFloat(p.Kills*60, p.Time)))
+		b.Store(info.KeyDeathsPerMinute, util.FormatFloat(util.DivideFloat(p.Deaths*60, p.Time)))
+		b.Store(info.KeyScorePreMinute, util.FormatFloat(util.DivideFloat(p.Score*60, p.Time)))
+		b.Store(info.KeyKillsPerRound, util.FormatFloat(util.DivideFloat(p.Kills, p.Rounds)))
+		b.Store(info.KeyDeathsPerRound, util.FormatFloat(util.DivideFloat(p.Deaths, p.Rounds)))
 		b.Store(info.KeyTeamScore, util.FormatInt(p.TeamScore))
 		b.Store(info.KeyCaptures, util.FormatUint(p.Captures))
 		b.Store(info.KeyCaptureAssists, util.FormatUint(p.CaptureAssists))
@@ -376,7 +376,7 @@ func (g *Gatherer) gatherWeaponRecordData(pid uint32, b *sync.Map[string, string
 				b.Store(info.GroupWeaponTime+suffix, util.FormatUint(record.Time))
 				b.Store(info.GroupWeaponKills+suffix, util.FormatUint(record.Kills))
 				b.Store(info.GroupWeaponDeaths+suffix, util.FormatUint(record.Deaths))
-				b.Store(info.GroupWeaponAccuracy+suffix, util.FormatFloat(divide(record.ShotsHit, record.ShotsFired)*100))
+				b.Store(info.GroupWeaponAccuracy+suffix, util.FormatFloat(util.DivideFloat(record.ShotsHit, record.ShotsFired)*100))
 				b.Store(info.GroupWeaponKillDeathRatio+suffix, formatRatio(ratio(record.Kills, record.Deaths)))
 			} else if isExplosiveID(id) {
 				explosives.Time += record.Time
@@ -412,23 +412,15 @@ func (g *Gatherer) gatherWeaponRecordData(pid uint32, b *sync.Map[string, string
 			b.Store(info.GroupWeaponTime+suffix, util.FormatUint(record.Time))
 			b.Store(info.GroupWeaponKills+suffix, util.FormatUint(record.Kills))
 			b.Store(info.GroupWeaponDeaths+suffix, util.FormatUint(record.Deaths))
-			b.Store(info.GroupWeaponAccuracy+suffix, util.FormatFloat(divide(record.ShotsHit, record.ShotsFired)*100))
+			b.Store(info.GroupWeaponAccuracy+suffix, util.FormatFloat(util.DivideFloat(record.ShotsHit, record.ShotsFired)*100))
 			b.Store(info.GroupWeaponKillDeathRatio+suffix, formatRatio(ratio(record.Kills, record.Deaths)))
 		}
 
 		b.Store(info.KeyFavoriteWeapon, util.FormatUint(favorite.Weapon.ID))
-		b.Store(info.KeyAccuracy, util.FormatFloat(divide(shotsHit, shotsFired)*100))
+		b.Store(info.KeyAccuracy, util.FormatFloat(util.DivideFloat(shotsHit, shotsFired)*100))
 
 		return nil
 	}
-}
-
-func divide[A, B constraints.Integer](a A, b B) float64 {
-	// Checking for 0 explicitly rather than using max(b, 1) since b could be negative
-	if b == 0 {
-		return float64(a)
-	}
-	return float64(a) / float64(b)
 }
 
 func gcd[A, B constraints.Integer](a A, b B) int64 {

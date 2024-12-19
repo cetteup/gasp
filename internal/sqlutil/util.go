@@ -2,6 +2,7 @@ package sqlutil
 
 import (
 	"database/sql"
+	"fmt"
 	"strings"
 	"time"
 
@@ -46,6 +47,18 @@ func Quote(s string) string {
 	return "`" + s + "`"
 }
 
-func QualifyColumn(table, column string) string {
-	return Quote(table) + "." + Quote(column)
+func QuoteJoin(table, column, sep string) string {
+	return Quote(table) + sep + Quote(column)
+}
+
+func Qualify(table, column string) string {
+	return QuoteJoin(table, column, ".")
+}
+
+func QualifyAlias(table, column string) string {
+	return fmt.Sprintf("%s AS %s", Qualify(table, column), Predicate(table, column))
+}
+
+func Predicate(table, column string) string {
+	return Quote(table + "_" + column)
 }

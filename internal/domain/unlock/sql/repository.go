@@ -150,8 +150,8 @@ func (r *RecordRepository) FindByPlayerID(ctx context.Context, playerID uint32) 
 		LeftJoin(fmt.Sprintf(
 			"%s ON %s = %s",
 			unlockRequirementTable,
-			sqlutil.QualifyColumn(unlockTable, columnID),
-			sqlutil.QualifyColumn(unlockRequirementTable, columnChildID),
+			sqlutil.Qualify(unlockTable, columnID),
+			sqlutil.Qualify(unlockRequirementTable, columnChildID),
 		)).
 		PrefixExpr(playerUnlockCTE).
 		Suffix(")")
@@ -164,10 +164,10 @@ func (r *RecordRepository) FindByPlayerID(ctx context.Context, playerID uint32) 
 			// Hard-select the given player id since these unlocks have yet to be obtained by the player,
 			// thus there is no link to the player at the moment.
 			util.FormatUint(playerID),
-			sqlutil.QualifyColumn(unlockCTEName, columnID),
-			sqlutil.QualifyColumn(unlockCTEName, columnName),
-			sqlutil.QualifyColumn(unlockCTEName, columnDescription),
-			sqlutil.QualifyColumn(unlockCTEName, columnKitID),
+			sqlutil.Qualify(unlockCTEName, columnID),
+			sqlutil.Qualify(unlockCTEName, columnName),
+			sqlutil.Qualify(unlockCTEName, columnDescription),
+			sqlutil.Qualify(unlockCTEName, columnKitID),
 			"0", // We're selecting non-obtained unlocks, so hard-set unlocked and timestamp to 0.
 			"0",
 		).
@@ -179,16 +179,16 @@ func (r *RecordRepository) FindByPlayerID(ctx context.Context, playerID uint32) 
 				// contains NULL - which is the case for a player without any unlocks. For such a player,
 				// pu only contains a single RIGHT JOIN-ed row in which the unlock_id is NULL.
 				"%s NOT IN (SELECT COALESCE(%s, 0) FROM %s)",
-				sqlutil.QualifyColumn(unlockCTEName, columnID),
+				sqlutil.Qualify(unlockCTEName, columnID),
 				columnUnlockID,
 				playerUnlockCTEName,
 			)),
 			// Only include unlocks that either don't have a parent or those for which the parent was already unlocked.
 			sq.Or{
-				sq.Expr(fmt.Sprintf("%s IS NULL", sqlutil.QualifyColumn(unlockCTEName, columnParentID))),
+				sq.Expr(fmt.Sprintf("%s IS NULL", sqlutil.Qualify(unlockCTEName, columnParentID))),
 				sq.Expr(fmt.Sprintf(
 					"%s IN (SELECT %s FROM %s)",
-					sqlutil.QualifyColumn(unlockCTEName, columnParentID),
+					sqlutil.Qualify(unlockCTEName, columnParentID),
 					columnUnlockID,
 					playerUnlockCTEName,
 				)),
@@ -200,20 +200,20 @@ func (r *RecordRepository) FindByPlayerID(ctx context.Context, playerID uint32) 
 	// Finally, the first part of the union returns all unlocks obtained by the player (if any).
 	query := sq.
 		Select(
-			sqlutil.QualifyColumn(playerUnlockCTEName, columnPlayerID),
-			sqlutil.QualifyColumn(unlockCTEName, columnID),
-			sqlutil.QualifyColumn(unlockCTEName, columnName),
-			sqlutil.QualifyColumn(unlockCTEName, columnDescription),
-			sqlutil.QualifyColumn(unlockCTEName, columnKitID),
-			fmt.Sprintf("NOT ISNULL(%s) AS %s", sqlutil.QualifyColumn(playerUnlockCTEName, columnUnlockID), virtualColumnUnlocked),
-			fmt.Sprintf("COALESCE(%s, 0) AS %s", sqlutil.QualifyColumn(playerUnlockCTEName, columnTimestamp), columnTimestamp),
+			sqlutil.Qualify(playerUnlockCTEName, columnPlayerID),
+			sqlutil.Qualify(unlockCTEName, columnID),
+			sqlutil.Qualify(unlockCTEName, columnName),
+			sqlutil.Qualify(unlockCTEName, columnDescription),
+			sqlutil.Qualify(unlockCTEName, columnKitID),
+			fmt.Sprintf("NOT ISNULL(%s) AS %s", sqlutil.Qualify(playerUnlockCTEName, columnUnlockID), virtualColumnUnlocked),
+			fmt.Sprintf("COALESCE(%s, 0) AS %s", sqlutil.Qualify(playerUnlockCTEName, columnTimestamp), columnTimestamp),
 		).
 		From(unlockCTEName).
 		InnerJoin(fmt.Sprintf(
 			"%s ON %s = %s",
 			playerUnlockCTEName,
-			sqlutil.QualifyColumn(unlockCTEName, columnID),
-			sqlutil.QualifyColumn(playerUnlockCTEName, columnUnlockID),
+			sqlutil.Qualify(unlockCTEName, columnID),
+			sqlutil.Qualify(playerUnlockCTEName, columnUnlockID),
 		)).
 		PrefixExpr(unlockCTE).
 		SuffixExpr(availableUnlocksUnion)

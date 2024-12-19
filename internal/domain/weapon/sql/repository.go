@@ -43,28 +43,28 @@ func NewRecordRepository(runner sq.BaseRunner) *RecordRepository {
 func (r *RecordRepository) FindByPlayerID(ctx context.Context, playerID uint32) ([]weapon.Record, error) {
 	query := sq.
 		Select(
-			sqlutil.QualifyColumn(weaponRecordTable, columnPlayerID),
-			sqlutil.QualifyColumn(weaponRecordTable, columnWeaponID),
-			sqlutil.QualifyColumn(weaponTable, columnName),
-			sqlutil.QualifyColumn(weaponTable, columnIsExplosive),
-			sqlutil.QualifyColumn(weaponTable, columnIsEquipment),
-			sqlutil.QualifyColumn(weaponRecordTable, columnTime),
-			sqlutil.QualifyColumn(weaponRecordTable, columnScore),
-			sqlutil.QualifyColumn(weaponRecordTable, columnKills),
-			sqlutil.QualifyColumn(weaponRecordTable, columnDeaths),
-			sqlutil.QualifyColumn(weaponRecordTable, columnShotsFired),
-			sqlutil.QualifyColumn(weaponRecordTable, columnShotsHit),
-			sqlutil.QualifyColumn(weaponRecordTable, columnTimesDeployed),
+			sqlutil.Qualify(weaponRecordTable, columnPlayerID),
+			sqlutil.Qualify(weaponRecordTable, columnWeaponID),
+			sqlutil.Qualify(weaponTable, columnName),
+			sqlutil.Qualify(weaponTable, columnIsExplosive),
+			sqlutil.Qualify(weaponTable, columnIsEquipment),
+			sqlutil.Qualify(weaponRecordTable, columnTime),
+			sqlutil.Qualify(weaponRecordTable, columnScore),
+			sqlutil.Qualify(weaponRecordTable, columnKills),
+			sqlutil.Qualify(weaponRecordTable, columnDeaths),
+			sqlutil.Qualify(weaponRecordTable, columnShotsFired),
+			sqlutil.Qualify(weaponRecordTable, columnShotsHit),
+			sqlutil.Qualify(weaponRecordTable, columnTimesDeployed),
 		).
 		From(weaponRecordTable).
 		InnerJoin(fmt.Sprintf(
 			"%s ON %s = %s",
 			weaponTable,
-			sqlutil.QualifyColumn(weaponRecordTable, columnWeaponID),
-			sqlutil.QualifyColumn(weaponTable, columnID),
+			sqlutil.Qualify(weaponRecordTable, columnWeaponID),
+			sqlutil.Qualify(weaponTable, columnID),
 		)).
-		Where(sq.Eq{sqlutil.QualifyColumn(weaponRecordTable, columnPlayerID): playerID}).
-		OrderBy(fmt.Sprintf("%s ASC", sqlutil.QualifyColumn(weaponRecordTable, columnWeaponID)))
+		Where(sq.Eq{sqlutil.Qualify(weaponRecordTable, columnPlayerID): playerID}).
+		OrderBy(fmt.Sprintf("%s ASC", sqlutil.Qualify(weaponRecordTable, columnWeaponID)))
 
 	rows, err := query.RunWith(r.runner).QueryContext(ctx)
 	if err != nil {
