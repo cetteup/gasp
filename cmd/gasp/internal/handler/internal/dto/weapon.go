@@ -14,7 +14,10 @@ const (
 	WeaponDefibrillator   uint8 = 10
 	WeaponExplosives      uint8 = 11
 	WeaponHandGrenade     uint8 = 12
-	WeaponDummy           uint8 = 13
+	// WeaponDummy This might be an equipments group (non-lethal, since nobody has any kills with this)
+	// Some sources use it as zipline only, but some values don't quite line up when looking at stats from BF2Hub.
+	// See https://ancientdev.com/bf2tech/bf2tech.org/index.php/BF2_Statistics.html#Function:_getplayerinfo
+	WeaponDummy uint8 = 13
 )
 
 var (
