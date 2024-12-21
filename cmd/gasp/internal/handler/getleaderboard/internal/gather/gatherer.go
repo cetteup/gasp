@@ -61,6 +61,8 @@ func (g *Gatherer) Gather(ctx context.Context, t, id string, position, before, a
 		filter = leaderboard.NewPositionFilter(first, last)
 	}
 
+	// GameSpy had a handy breakdown of the available leaderboards and their parameters
+	// See https://web.archive.org/web/20130615060443/http://bf2web.gamespy.com/ASP/getleaderboard.aspx
 	switch t {
 	case typeScore:
 		return g.gatherScoreData(ctx, id, filter)
