@@ -151,9 +151,9 @@ func (g *Gatherer) gatherKitData(ctx context.Context, id string, filter leaderbo
 			"pid":       util.FormatUint(entry.Data.Player.ID),
 			"nick":      entry.Data.Player.Name,
 			"killswith": util.FormatUint(entry.Data.Kills),
-			// "deathsby" is NOT "deaths", but the actual value is currently not available, so just return zero
+			// "deathsby" and "deaths" values seem to match (comparing original GameSpy data with data imported by BF2Hub)
 			// See https://github.com/startersclan/asp/issues/86 for details
-			"deathsby":    "0",
+			"deathsby":    util.FormatUint(entry.Data.Deaths),
 			"timeused":    util.FormatUint(entry.Data.Time),
 			"playerrank":  util.FormatUint(entry.Data.Player.Rank.ID),
 			"countrycode": strings.ToUpper(entry.Data.Player.Country),
@@ -190,9 +190,9 @@ func (g *Gatherer) gatherVehicleData(ctx context.Context, id string, filter lead
 			"pid":       util.FormatUint(entry.Data.Player.ID),
 			"nick":      entry.Data.Player.Name,
 			"killswith": util.FormatUint(entry.Data.Kills),
-			// "deathsby" is NOT "deaths", but the actual value is currently not available, so just return zero
+			// "deathsby" and "deaths" values seem to match (comparing original GameSpy data with data imported by BF2Hub)
 			// See https://github.com/startersclan/asp/issues/86 for details
-			"detahsby":    "0",
+			"detahsby":    util.FormatUint(entry.Data.Deaths),
 			"timeused":    util.FormatUint(entry.Data.Time),
 			"playerrank":  util.FormatUint(entry.Data.Player.Rank.ID),
 			"countrycode": strings.ToUpper(entry.Data.Player.Country),
@@ -229,9 +229,9 @@ func (g *Gatherer) gatherWeaponData(ctx context.Context, id string, filter leade
 			"pid":       util.FormatUint(entry.Data.Player.ID),
 			"nick":      entry.Data.Player.Name,
 			"killswith": util.FormatUint(entry.Data.Kills),
-			// "deathsby" is NOT "deaths", but the actual value is currently not available, so just return zero
+			// "deathsby" and "deaths" values seem to match (comparing original GameSpy data with data imported by BF2Hub)
 			// See https://github.com/startersclan/asp/issues/86 for details
-			"detahsby":    "0",
+			"detahsby":    util.FormatUint(entry.Data.Deaths),
 			"timeused":    util.FormatUint(entry.Data.Time),
 			"accuracy":    util.FormatUint(util.DivideUint(entry.Data.ShotsHit*100, entry.Data.ShotsFired)),
 			"playerrank":  util.FormatUint(entry.Data.Player.Rank.ID),
