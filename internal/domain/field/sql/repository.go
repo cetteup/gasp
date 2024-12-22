@@ -18,7 +18,7 @@ const (
 	columnWins     = "wins"
 	columnLosses   = "losses"
 
-	highestOfficialFieldID = 603 // Operation Blue Pearl
+	highestOfficialFieldID = field.OperationBluePearl
 )
 
 type RecordRepository struct {
