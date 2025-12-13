@@ -19,16 +19,17 @@ jobs:
     name: lint
     strategy:
       matrix:
-        go-version: [ 1.21.13, 1.23.4 ]
+        go-version-file: [ go.mod, .tool-versions ]
         os: [ ubuntu-latest ]
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/setup-go@v5
-        with:
-          go-version: ${{ matrix.go-version }}
       - uses: actions/checkout@v6
-      - name: golangci-lint
-        uses: golangci/golangci-lint-action@v9
+
+      - uses: actions/setup-go@v6
+        with:
+          go-version-file: ${{ matrix.go-version-file }}
+
+      - uses: golangci/golangci-lint-action@v9
         with:
           version: latest
           only-new-issues: true
