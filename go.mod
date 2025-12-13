@@ -7,7 +7,7 @@ require (
 	github.com/go-playground/validator/v10 v10.23.0
 	github.com/go-sql-driver/mysql v1.8.1
 	github.com/labstack/echo/v4 v4.14.0
-	github.com/rs/zerolog v1.33.0
+	github.com/rs/zerolog v1.34.0
 	go.uber.org/multierr v1.11.0
 	gopkg.in/yaml.v3 v3.0.1
 )
