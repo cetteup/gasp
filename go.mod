@@ -5,7 +5,7 @@ go 1.25.0
 require (
 	github.com/Masterminds/squirrel v1.5.4
 	github.com/go-playground/validator/v10 v10.30.2
-	github.com/go-sql-driver/mysql v1.10.0
+	github.com/go-sql-driver/mysql v1.10.1
 	github.com/labstack/echo/v4 v4.15.2
 	github.com/rs/zerolog v1.35.1
 	go.uber.org/multierr v1.11.0
